@@ -2,11 +2,14 @@ import pandas as pd
 import numpy as np
 import torch
 import torchvision
-from torchvision import transforms
+import torch.nn as nn
+from sklearn.model_selection import train_test_split
+from torchvision import transforms,models
 from torch.utils.data import Dataset,DataLoader
 import os
 from sklearn import model_selection
 from CustomDataset import ClassificationDataset
+import albumentations
 
 # file directory
 root_dir = 'D:/Deep Learning/Projects/Melanoma skin cancer detection/'
@@ -36,9 +39,28 @@ train_folds = pd.read_csv(root_dir + 'train_folds.csv')
 images_id = train_folds.image_name.values.tolist()
 images = [os.path.join(root_dir + 'train/' ,i +'.jpg') for i in images_id]
 targets = train_csv.target.values
-dataset = ClassificationDataset(image_paths=images, targets=targets, resize=None, augmentations=None)
+# dataset = ClassificationDataset(image_paths=images, targets=targets, resize=None, augmentations=None)
 
-for img,label in dataset:
-    print(img.shape)
-    print(label)
-    break
+mean = (0.485, 0.456, 0.406)
+std = (0.229, 0.224, 0.225)
+# adding a simple augmentation
+aug = albumentations.Compose([
+    albumentations.Normalize(mean, std, max_pixel_value=255.0, always_apply=True)
+])
+
+# train and test split
+img_train, img_test, target_train, target_test = train_test_split(images, targets,stratify=targets, random_state=1)
+
+train_dataset = ClassificationDataset(image_paths=img_train, targets=target_train, resize=(224,224), augmentations=aug)
+test_dataset = ClassificationDataset(image_paths=img_test, targets= target_test, resize=(224,224), augmentations=aug)
+
+train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True, num_workers=4)
+test_loader = DataLoader(test_dataset, batch_size=16, shuffle=True, num_workers=4)
+
+# defining model
+model = models.resnext50_32x4d(pretrained=True)
+model.fc = nn.Sequential(
+    nn.Linear(2048,1000),
+    nn.Dropout(p=0.5),
+    nn.Linear(1000,1)
+)
