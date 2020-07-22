@@ -21,21 +21,20 @@ if __name__ == "__main__":
     kf = model_selection.StratifiedKFold(n_splits=5)
 
     for count, (train_index,val_index) in enumerate(kf.split(X = train_csv,y = y)):
-        train_csv.loc[_,'kfold'] = count
-        print("Train:", train_index, "Validation:", val_index)
-        X_train, X_test = X[train_index], X[val_index]
-        y_train, y_test = y[train_index], y[val_index]
-    
+        train_csv.loc[val_index,'kfold'] = count
+
     train_csv.to_csv("train_folds.csv")
-    hey there
+
 
 # data loading and converting into tensor
 
 train_folds = pd.read_csv('train_folds.csv')
-root_dir = 'D:/Deep Learning/Projects/Melanoma skin cancer detection/train/'
+root_dir = 'D:/Deep Learning/Projects/Melanoma skin cancer detection/melanoma/train/'
 images_id = train_folds.image_name.values.tolist()
 images = [os.path.join(root_dir,i +'.jpg') for i in images_id]
 targets = train_csv.target.values
 dataset = ClassificationDataset(image_paths=images, targets=targets, resize=None, augmentations=None)
 
-
+for img,label in dataset:
+    print(img.shape)
+    break
