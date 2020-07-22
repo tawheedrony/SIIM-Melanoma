@@ -14,6 +14,7 @@ import albumentations
 # file directory
 root_dir = 'D:/Deep Learning/Projects/Melanoma skin cancer detection/'
 
+# not using
 # Folding the validation set using stratified cross validation . Stratified cross validation works well for skewed dataset
 if __name__ == "__main__":
     train_csv = pd.read_csv(root_dir +'train.csv')
@@ -33,13 +34,18 @@ if __name__ == "__main__":
 
 
 # data loading and converting into tensor
+# train data
+train_csv = pd.read_csv(root_dir + 'train.csv')
+images_id_train = train_csv.image_name.values.tolist()
+train_images = [os.path.join(root_dir + 'train/' ,i +'.jpg') for i in images_id_train]
+train_targets = train_csv.target.values
 
-train_folds = pd.read_csv(root_dir + 'train_folds.csv')
+# test data
+test_csv = pd.read_csv(root_dir + 'test.csv')
+images_id_test = test_csv.image_name.values.tolist()
+test_images = [os.path.join(root_dir + 'test/' ,i +'.jpg') for i in images_id_test]
+test_targets = test_csv.target.values
 
-images_id = train_folds.image_name.values.tolist()
-images = [os.path.join(root_dir + 'train/' ,i +'.jpg') for i in images_id]
-targets = train_csv.target.values
-# dataset = ClassificationDataset(image_paths=images, targets=targets, resize=None, augmentations=None)
 
 mean = (0.485, 0.456, 0.406)
 std = (0.229, 0.224, 0.225)
@@ -48,11 +54,9 @@ aug = albumentations.Compose([
     albumentations.Normalize(mean, std, max_pixel_value=255.0, always_apply=True)
 ])
 
-# train and test split
-img_train, img_test, target_train, target_test = train_test_split(images, targets,stratify=targets, random_state=1)
-
-train_dataset = ClassificationDataset(image_paths=img_train, targets=target_train, resize=(224,224), augmentations=aug)
-test_dataset = ClassificationDataset(image_paths=img_test, targets= target_test, resize=(224,224), augmentations=aug)
+# Loading customDataset and
+train_dataset = ClassificationDataset(image_paths=train_images, targets=train_targets, resize=(224,224), augmentations=aug)
+test_dataset = ClassificationDataset(image_paths=test_images, targets= test_targets, resize=(224,224), augmentations=aug)
 
 train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True, num_workers=4)
 test_loader = DataLoader(test_dataset, batch_size=16, shuffle=True, num_workers=4)
