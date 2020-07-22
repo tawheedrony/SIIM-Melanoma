@@ -8,9 +8,12 @@ import os
 from sklearn import model_selection
 from CustomDataset import ClassificationDataset
 
+# file directory
+root_dir = 'D:/Deep Learning/Projects/Melanoma skin cancer detection/'
+
 # Folding the validation set using stratified cross validation . Stratified cross validation works well for skewed dataset
 if __name__ == "__main__":
-    train_csv = pd.read_csv('train.csv')
+    train_csv = pd.read_csv(root_dir +'train.csv')
     train_csv['kfold'] = -1
     # DataFrame.sample randomizes the rows of the data and frac determines the fraction of the data to be used for randomizing
     # DataFrame.reset_index creates new index for the randomized data and drop=True delete the previous index
@@ -23,18 +26,19 @@ if __name__ == "__main__":
     for count, (train_index,val_index) in enumerate(kf.split(X = train_csv,y = y)):
         train_csv.loc[val_index,'kfold'] = count
 
-    train_csv.to_csv("train_folds.csv")
+    train_csv.to_csv(root_dir + "train_folds.csv")
 
 
 # data loading and converting into tensor
 
-train_folds = pd.read_csv('train_folds.csv')
-root_dir = 'D:/Deep Learning/Projects/Melanoma skin cancer detection/melanoma/train/'
+train_folds = pd.read_csv(root_dir + 'train_folds.csv')
+
 images_id = train_folds.image_name.values.tolist()
-images = [os.path.join(root_dir,i +'.jpg') for i in images_id]
+images = [os.path.join(root_dir + 'train/' ,i +'.jpg') for i in images_id]
 targets = train_csv.target.values
 dataset = ClassificationDataset(image_paths=images, targets=targets, resize=None, augmentations=None)
 
 for img,label in dataset:
     print(img.shape)
+    print(label)
     break
