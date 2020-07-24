@@ -8,4 +8,4 @@ Links to follow:
 - Merged external data for the malignant images Targets: Benign - 32542, Malignant - 5106
 4. https://www.kaggle.com/shonenkov/melanoma-merged-external-data-512x512-jpeg?select=folds.csv  
 - Merged external data from 2017/18/19 along woth 2020. Targets: Benign- 55008, Malignant- 5479
-5. 
+5. https://www.youtube.com/watch?v=meg8I1GdtUg - Youtube lecture on 2018 competition win 
